@@ -41,7 +41,7 @@ public class WeatherImportJobTest {
     given(locationService.getNextImportLocation()).willReturn(importLocation);
 
     Location updatedLocation = mock(Location.class);
-    given(openWeatherApiClient.requestWithGeneratedClient(importLocation)).willReturn(updatedLocation);
+    given(openWeatherApiClient.requestWeather(importLocation)).willReturn(updatedLocation);
 
     Location savedLocation = mock(Location.class);
     given(locationService.save(updatedLocation)).willReturn(savedLocation);
@@ -53,7 +53,7 @@ public class WeatherImportJobTest {
     assertThat(meterRegistry.counter("import.job", "error", "process").count()).isEqualTo(0.00d);
 
     then(locationService).should().getNextImportLocation();
-    then(openWeatherApiClient).should().requestWithGeneratedClient(importLocation);
+    then(openWeatherApiClient).should().requestWeather(importLocation);
     then(locationService).should().save(updatedLocation);
   }
 
@@ -62,7 +62,7 @@ public class WeatherImportJobTest {
     Location importLocation = mock(Location.class);
 
     given(locationService.getNextImportLocation()).willReturn(importLocation);
-    given(openWeatherApiClient.requestWithGeneratedClient(importLocation)).willThrow(OpenWeatherApiRequestException.class);
+    given(openWeatherApiClient.requestWeather(importLocation)).willThrow(OpenWeatherApiRequestException.class);
 
     weatherImportJob.refreshWeather();
 
@@ -71,7 +71,7 @@ public class WeatherImportJobTest {
     assertThat(meterRegistry.counter("import.job", "error", "process").count()).isEqualTo(0.00d);
 
     then(locationService).should().getNextImportLocation();
-    then(openWeatherApiClient).should().requestWithGeneratedClient(importLocation);
+    then(openWeatherApiClient).should().requestWeather(importLocation);
     then(locationService).should(times(0)).save(any());
   }
 

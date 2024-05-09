@@ -33,7 +33,7 @@ public class WeatherImportJob {
       Location location = requireNonNull(locationService.getNextImportLocation(), "location is required");
       log.info("Import weather for location: {}, last_imported_at: {}", location.cityName(), location.lastImportAt());
 
-      Location updatedLocation = openWeatherApiClient.requestWithGeneratedClient(location);
+      Location updatedLocation = openWeatherApiClient.requestWeather(location);
 
       locationService.save(updatedLocation);
     } catch (OpenWeatherApiRequestException requestException) {

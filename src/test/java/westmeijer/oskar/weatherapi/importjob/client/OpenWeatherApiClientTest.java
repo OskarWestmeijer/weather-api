@@ -48,7 +48,7 @@ public class OpenWeatherApiClientTest {
     given(apiResponseEntity.getBody()).willReturn(apiResponse);
     given(openWeatherApiMapper.mapToLocation(apiResponse, requestLocation)).willReturn(expectedLocation);
 
-    Location actualLocation = openWeatherApiClient.requestWithGeneratedClient(requestLocation);
+    Location actualLocation = openWeatherApiClient.requestWeather(requestLocation);
 
     assertThat(actualLocation).isEqualTo(expectedLocation);
   }
@@ -60,7 +60,7 @@ public class OpenWeatherApiClientTest {
         appId)).willThrow(
         RuntimeException.class);
 
-    assertThatThrownBy(() -> openWeatherApiClient.requestWithGeneratedClient(requestLocation))
+    assertThatThrownBy(() -> openWeatherApiClient.requestWeather(requestLocation))
         .isInstanceOf(OpenWeatherApiRequestException.class)
         .hasMessageContaining("Exception during OpenWeatherApi request.");
   }

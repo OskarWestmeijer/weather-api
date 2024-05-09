@@ -1,8 +1,12 @@
 package westmeijer.oskar.weatherapi.importjob.client;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -11,7 +15,6 @@ import westmeijer.oskar.weatherapi.importjob.exception.OpenWeatherApiRequestExce
 import westmeijer.oskar.weatherapi.location.service.model.Location;
 import westmeijer.oskar.weatherapi.openapi.client.api.GeneratedOpenWeatherApi;
 import westmeijer.oskar.weatherapi.openapi.client.model.GeneratedOpenWeatherApiResponse;
-import westmeijer.oskar.weatherapi.weather.service.model.Weather;
 
 @Component
 @Slf4j
@@ -32,18 +35,36 @@ public class OpenWeatherApiClient {
     this.generatedOpenWeatherApi = generatedOpenWeatherApi;
   }
 
-  public Location requestWithGeneratedClient(Location location) {
+  public List<Location> requestWeatherForBatch(List<Location> locations) {
+    checkArgument(CollectionUtils.isNotEmpty(locations), "locations are required");
+    return locations.stream()
+        .map(location -> {
+          try {
+            return requestWeather(location);
+          } catch (Exception e) {
+            // single failures should not stop the batch import
+            log.error("Import failed for locationId: {}", location.locationId(), e);
+            return null;
+          }
+        })
+        .filter(Objects::nonNull)
+        .toList();
+  }
+
+  public Location requestWeather(Location location) {
+    requireNonNull(location, "location is required");
+    var response = requireNonNull(request(location), "response is required");
+    var body = requireNonNull(response.getBody(), "body is required");
+    return openWeatherApiMapper.mapToLocation(body, location);
+  }
+
+  private ResponseEntity<GeneratedOpenWeatherApiResponse> request(Location location) {
     try {
-      requireNonNull(location, "location is required");
-
-      ResponseEntity<GeneratedOpenWeatherApiResponse> response = generatedOpenWeatherApi.getCurrentWeatherWithHttpInfo(
+      // throws checked WebClientResponseException
+      return generatedOpenWeatherApi.getCurrentWeatherWithHttpInfo(
           location.latitude(), location.longitude(), "metric", appId).block();
-
-      requireNonNull(response, "response is required");
-      GeneratedOpenWeatherApiResponse body = requireNonNull(response.getBody(), "body is required");
-
-      return openWeatherApiMapper.mapToLocation(body, location);
     } catch (Exception e) {
+      // rethrow as unchecked OpenWeatherApiRequestException, minimize exception handling
       throw new OpenWeatherApiRequestException("Exception during OpenWeatherApi request.", e);
     }
   }

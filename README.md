@@ -11,19 +11,6 @@ documented with an OpenApi specification.
 - [https://weather.oskar-westmeijer.com](https://weather.oskar-westmeijer.com) (Angular frontend)
 - [https://api.weather.oskar-westmeijer.com](https://api.weather.oskar-westmeijer.com) (Spring Boot backend)
 
-###
-```
-# get all locations or single one
-GET /locations
-GET /locations/{locationId}
-
-# get weather for a location
-GET /locations/{locationId}/weather?from={from}&limit={limit}
-
-# only latest weather, think about required attributes
-GET /weather/latest?locationIds=1,2,3
-```
-
 ### Technologies
 
 ```

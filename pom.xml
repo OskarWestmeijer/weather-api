@@ -300,7 +300,7 @@
     <testcontainers.version>1.20.4</testcontainers.version>
     <assertj.version>3.27.2</assertj.version>
     <postgresql.version>42.7.4</postgresql.version>
-    <prometheus.version>1.14.2</prometheus.version>
+    <prometheus.version>1.14.4</prometheus.version>
     <lombok.mapstruct.binding.version>0.2.0</lombok.mapstruct.binding.version>
     <springdoc.version>2.7.0</springdoc.version>
     <jackson-databind.version>0.2.6</jackson-databind.version>
